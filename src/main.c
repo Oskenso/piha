@@ -269,6 +269,56 @@ void screenSetColorMode(uint8_t colorMode) {
 
 }
 
+
+void drawFramebuffer() {
+    FILE *sysfb;
+    uint8_t *buffer;
+
+    sysfb = fopen("/dev/fb0/", "r");
+    if (sysfb != NULL)
+    {
+        buffer = malloc (sizeof(uint8_t) * 160*128*4);
+
+        result = fread(buffer, 160*128*4, 1, sysfb);
+        if (result != lSize) {
+            puts("Reading error", stderr);
+            exit(3);
+        }
+        fclose (sysfb);
+
+        screenWriteMemoryStart();
+        for (int i = 0; i < (160*128); i++) {
+            //uint8_t color = buffer[i+0] << 16 | buffer[i+1] << 8 | buffer[i+2];
+
+            digitalWrite(P_CS, 0);
+            digitalWrite(P_RS, 1);
+            digitalWriteByte(buffer[(i*4)+0]);
+            digitalWrite(P_RW, 0);
+            digitalWrite(P_E, 1);
+            digitalWrite(P_E, 0);
+            digitalWrite(P_CS, 1);
+
+            digitalWrite(P_CS, 0);
+            digitalWrite(P_RS, 1);
+            digitalWriteByte(buffer[(i*4)+1]);
+            digitalWrite(P_RW, 0);
+            digitalWrite(P_E, 1);
+            digitalWrite(P_E, 0);
+            digitalWrite(P_CS, 1);
+
+            digitalWrite(P_CS, 0);
+            digitalWrite(P_RS, 1);
+            digitalWriteByte(buffer[(i*4)+2]);
+            digitalWrite(P_RW, 0);
+            digitalWrite(P_E, 1);
+            digitalWrite(P_E, 0);
+            digitalWrite(P_CS, 1);
+        }
+
+        free(buffer);
+    }
+}
+
 int main() {
 	struct dirent *dir;
 	int imageCount = 0;
@@ -369,7 +419,8 @@ int main() {
 
 		int step;
 		for  (step = 0; step < fadeSequences[i]->count; step++) {
-			drawImage(fadeSequences[i]->images[step]);
+			//drawImage(fadeSequences[i]->images[step]);
+            drawFramebuffer();
 		}
 		for (step = fadeSequences[nextFrame]->count-1; step >= 0; step--) {
 			drawImage(fadeSequences[nextFrame]->images[step]);
