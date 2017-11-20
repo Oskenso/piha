@@ -339,7 +339,7 @@ int main() {
 
     FILE *sysfb;
     sysfb = fopen("/dev/fb0", "w");
-    uint8_t buffer = malloc(160*128*4);
+    uint8_t *buffer = malloc(160*128*4);
 	while (keepRunning) {
         rewind(sysfb);
         uint8_t result = fread(buffer, 160*128*4, 1, sysfb);
