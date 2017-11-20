@@ -343,7 +343,7 @@ int main() {
 	while (keepRunning) {
         rewind(sysfb);
         uint8_t result = fread(buffer, 160*128*4, 1, sysfb);
-        drawFramebuffer();
+        drawFramebuffer(buffer);
         delay(16);
 	}
 	//digitalWrite(P_RES, 0);
