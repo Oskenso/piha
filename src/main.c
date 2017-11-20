@@ -13,7 +13,7 @@
 #include <wiringPiSPI.h>
 
 #include <math.h>
-#include <osk_image.h>
+//#include <osk_image.h>
 
 
 #define P_RS 22 //D/C
@@ -31,17 +31,6 @@ static volatile int keepRunning = 1;
 
 void intHandler(int dummy) {
     keepRunning = 0;
-}
-
-void print_hex_memory(void *mem, int size) {
-	int i;
-	unsigned char *p = (unsigned char *)mem;
-	for (i = 0; i < size; i++) {
-		printf("0x%02x ", p[i]);
-		if (( i % 16 == 0) && i)
-		printf("\n");
-	}
-	printf("\n");
 }
 
 void displaySend(uint8_t t, uint8_t d) {
@@ -110,36 +99,6 @@ void initDisplay() {
 
 	displaySetReg(0x14, 0x01);// Set MCU Interface Mode
 	displaySetReg(0x16, 0x76);// Set Memory Write Mode
-	// 8_bit 	Triple transfer, 262k support
-	//displaySend(DATA, 0x66); // 8_bit 	Dual transfer, 65k support
-	//displaySend(DATA, 0x46); // 9_bit Dual transfer, 262k support
-	//displaySend(DATA, 0x26); // 16_bit 	Single transfer, 65k support
-
-	/*
-
-	MEMORY_WRITE_MODE (16h)
-			Bit 7	Bit6	Bit5	Bit4	Bit3	Bit2	Bit1	Bit0
-	R/W		  - 	DFM1	DFM0	TRI 	 - 		HC		 VC		 HV
-	Default	  0		 0		 0		 0		 0 		 1 		  1		  0
-
-
-	DFM1	DFM0	TRI		BIT		Result
-	 0		 0		 X		18_bit 	Single transfer, 262k support
-	 0		 1		 X		16_bit 	Single transfer, 65k support
-	 1		 0		 X		9_bit 	Dual transfer, 262k support
-	 1		 1		 0		8_bit 	Dual transfer, 65k support
-	 1		 1		 1		8_bit 	Triple transfer, 262k support
-
-	HC : Horizontal address increment/decrement.
-		When HC= 0, Horizontal address counter is decreased
-		When HC= 1, Horizontal address counter is increased
-	VC : Vertical address increment/decrement.
-		When VC= 0, Vertical address counter is decreased
-		When VC= 1, Vertical address counter is increased
-	HV : Set the automatic update method of the AC after the data is written to the DDRAM.
-		When HV= 0, The data is continuously written horizontally
-		When HV= 1, The data is continuously written vertically
-*/
 
 	//shift mapping ram counter
 	displaySetReg(0x20, 0x00);
