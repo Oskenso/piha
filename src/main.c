@@ -158,27 +158,6 @@ void screenFill(unsigned long color) {
 	}
 }
 
-void drawImage(Image *img) {
-	int i;
-	uint8_t *data = img->data;
-
-	if (data == NULL) return;
-
-	screenSetPos(0, 0);
-    screenWriteMemoryStart();
-
-	for (i = 0; i < (160 * 128 * 3); i++) {
-		digitalWrite(P_CS, 0);
-		digitalWrite(P_RS, 1);
-		digitalWriteByte(data[i]);
-		digitalWrite(P_RW, 0);
-		digitalWrite(P_E, 1);
-		digitalWrite(P_E, 0);
-		digitalWrite(P_CS, 1);
-
-	}
-}
-
 void setFirstWindowPosition(uint8_t x, uint8_t y) {
 	displaySetReg(0x2e, x);
 	displaySetReg(0x2f, y);
