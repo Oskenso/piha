@@ -214,7 +214,7 @@ void drawFramebuffer(uint8_t *buffer) {
 
         digitalWrite(P_CS, 0);
         digitalWrite(P_RS, 1);
-        digitalWriteByte(buffer[(i*4)+2]);
+        digitalWriteByte(buffer[(i*4)+0]);
         digitalWrite(P_RW, 0);
         digitalWrite(P_E, 1);
         digitalWrite(P_E, 0);
@@ -230,7 +230,7 @@ void drawFramebuffer(uint8_t *buffer) {
 
         digitalWrite(P_CS, 0);
         digitalWrite(P_RS, 1);
-        digitalWriteByte(buffer[(i*4)+0]);
+        digitalWriteByte(buffer[(i*4)+2]);
         digitalWrite(P_RW, 0);
         digitalWrite(P_E, 1);
         digitalWrite(P_E, 0);
