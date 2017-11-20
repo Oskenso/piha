@@ -276,16 +276,18 @@ int main() {
 
 
     FILE *sysfb;
-    sysfb = fopen("/dev/fb0", "w");
+
     uint8_t *buffer = malloc(160*128*4);
 	while (keepRunning) {
-        rewind(sysfb);
+        sysfb = fopen("/dev/fb0", "w");
+        //rewind(sysfb);
         uint8_t result = fread(buffer, 160*128*4, 1, sysfb);
         drawFramebuffer(buffer);
         delay(16);
+        fclose(sysfb);
 	}
 	//digitalWrite(P_RES, 0);
-    fclose(sysfb);
+
 	//delay(500);
 
 	displaySend(COMMAND, 0x04);//power save
