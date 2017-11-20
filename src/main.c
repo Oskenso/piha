@@ -269,91 +269,42 @@ void screenSetColorMode(uint8_t colorMode) {
 
 }
 
+void drawFramebuffer(uint8_t *buffer) {
+    screenWriteMemoryStart();
+    for (int i = 0; i < (160*128); i++) {
+        //uint8_t color = buffer[i+0] << 16 | buffer[i+1] << 8 | buffer[i+2];
 
-void drawFramebuffer() {
-    FILE *sysfb;
-    uint8_t *buffer;
+        digitalWrite(P_CS, 0);
+        digitalWrite(P_RS, 1);
+        digitalWriteByte(buffer[(i*4)+2]);
+        digitalWrite(P_RW, 0);
+        digitalWrite(P_E, 1);
+        digitalWrite(P_E, 0);
+        digitalWrite(P_CS, 1);
 
-    sysfb = fopen("/dev/fb0/", "r");
-    if (sysfb != NULL)
-    {
-        buffer = malloc (sizeof(uint8_t) * 160*128*4);
+        digitalWrite(P_CS, 0);
+        digitalWrite(P_RS, 1);
+        digitalWriteByte(buffer[(i*4)+1]);
+        digitalWrite(P_RW, 0);
+        digitalWrite(P_E, 1);
+        digitalWrite(P_E, 0);
+        digitalWrite(P_CS, 1);
 
-        result = fread(buffer, 160*128*4, 1, sysfb);
-        if (result != lSize) {
-            puts("Reading error", stderr);
-            exit(3);
-        }
-        fclose (sysfb);
-
-        screenWriteMemoryStart();
-        for (int i = 0; i < (160*128); i++) {
-            //uint8_t color = buffer[i+0] << 16 | buffer[i+1] << 8 | buffer[i+2];
-
-            digitalWrite(P_CS, 0);
-            digitalWrite(P_RS, 1);
-            digitalWriteByte(buffer[(i*4)+0]);
-            digitalWrite(P_RW, 0);
-            digitalWrite(P_E, 1);
-            digitalWrite(P_E, 0);
-            digitalWrite(P_CS, 1);
-
-            digitalWrite(P_CS, 0);
-            digitalWrite(P_RS, 1);
-            digitalWriteByte(buffer[(i*4)+1]);
-            digitalWrite(P_RW, 0);
-            digitalWrite(P_E, 1);
-            digitalWrite(P_E, 0);
-            digitalWrite(P_CS, 1);
-
-            digitalWrite(P_CS, 0);
-            digitalWrite(P_RS, 1);
-            digitalWriteByte(buffer[(i*4)+2]);
-            digitalWrite(P_RW, 0);
-            digitalWrite(P_E, 1);
-            digitalWrite(P_E, 0);
-            digitalWrite(P_CS, 1);
-        }
-
-        free(buffer);
+        digitalWrite(P_CS, 0);
+        digitalWrite(P_RS, 1);
+        digitalWriteByte(buffer[(i*4)+0]);
+        digitalWrite(P_RW, 0);
+        digitalWrite(P_E, 1);
+        digitalWrite(P_E, 0);
+        digitalWrite(P_CS, 1);
     }
 }
 
 int main() {
-	struct dirent *dir;
-	int imageCount = 0;
-	void **imageList;
 
 	signal(SIGINT, intHandler);
 
-	DIR *d = opendir("./images/");
-	if (d) {
-		while ((dir = readdir(d)) != NULL) {
-			if (dir->d_name[0] != '.') {
-				imageCount++;
-				//printf("%s - %d\n", dir->d_name, imageCount);
 
-			}
-		}
-		rewinddir(d);
-
-		imageList = malloc(sizeof(void *) * imageCount);
-		int i = 0;
-
-		while ((dir = readdir(d)) != NULL) {
-			if (dir->d_name[0] != '.') {
-				char fName[255];
-				strcpy(fName, "images/");
-				strcat(fName, dir->d_name);
-				//printf("%s\n", fName);
-				imageList[i] = CreateImageFromFile(fName);
-				i++;
-				//printf("%s - %d\n", dir->d_name, imageCount);
-			}
-		}
-
-		closedir(d);
-	}
 
 	wiringPiSetup();
 	//pinMode(P_CPU, OUTPUT);
@@ -385,50 +336,18 @@ int main() {
 	return 0;
 	#endif
 
-	//clearScreen();
 
-	int i;
-	ImageList **fadeSequences;
-	fadeSequences = malloc(sizeof(ImageList) * imageCount);
-
-	double fadeTable[FADE_FRAMES];
-
-	puts("Generate fade table");
-	for (i = 0; i < FADE_FRAMES; i++) {
-		//fadeTable[i] = pow(i, FADE_RATE);
-		fadeTable[i] = pow(i, 5.5412635451584261 / log(FADE_FRAMES));
-	}
-
-	puts("Generating sequences");
-	for (i = 0; i < imageCount; i++) {
-		fadeSequences[i] = CreateFadeSequence(imageList[i], &fadeTable);
-	}
-
-	puts("Draw!");
-
-	i = -1;
-	int nextFrame = 0;
+    FILE *sysfb;
+    sysfb = fopen("/dev/fb0", "w");
+    uint8_t buffer = malloc(160*128*4);
 	while (keepRunning) {
-		i++;
-		if (i >= imageCount) {
-			i = 0;
-		}
-		drawImage(imageList[i]);
-		delay(2000);
-		nextFrame = (i+1) % imageCount;
-
-		int step;
-		for  (step = 0; step < fadeSequences[i]->count; step++) {
-			//drawImage(fadeSequences[i]->images[step]);
-            drawFramebuffer();
-		}
-		for (step = fadeSequences[nextFrame]->count-1; step >= 0; step--) {
-			drawImage(fadeSequences[nextFrame]->images[step]);
-		}
-
+        rewind(sysfb);
+        uint8_t result = fread(buffer, 160*128*4, 1, sysfb);
+        drawFramebuffer();
+        delay(16);
 	}
-
 	//digitalWrite(P_RES, 0);
+    fclose(sysfb);
 	//delay(500);
 
 	displaySend(COMMAND, 0x04);//power save
