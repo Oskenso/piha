@@ -315,7 +315,7 @@ int main() {
         //uint8_t result = fread(buffer, 160*128*4, 1, sysfb);
 		pread(sysfb, buffer, 160*144*4, 0);
         shrinkImage(buffer, toOled);
-        drawFramebuffer(toOld);
+        drawFramebuffer(toOled);
         delay(16);
 	}
 	//digitalWrite(P_RES, 0);
