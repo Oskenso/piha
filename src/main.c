@@ -249,7 +249,7 @@ void shrinkImage(uint8_t *in, uint8_t *out) {
 
 	for (int i = 0; i < w * h*4; i++) {
 		int line = floor(i / w);
-		if ( ((i % w) == 0) && ((line % 9) == 0) && (line != 0)) {
+		if ( ((i % w) == 0) && ((line % 8) == 1) && (line != 0)) {
 			offset += w;
 		}
 		//uint8_t r,g,b;
@@ -257,7 +257,12 @@ void shrinkImage(uint8_t *in, uint8_t *out) {
 		//g = (((in[i+offset] >> 8) & 0xFF) + ((in[i+offset-160] >> 8) & 0xFF)) / 2;
 		//b = (((in[i+offset]) & 0xFF) + ((in[i+offset-160]) & 0xFF)) / 2;
 		//out[i] = r << 16 | g << 8 | b;
-        out[i] = (((in[i+offset]) & 0xFF) + ((in[i+offset-160]) & 0xFF)) / 2;
+        if (offset >= w) {
+            out[i] = (in[i+offset] + in[i+offset-160]) / 2;
+        } else {
+            out[i] = in[i+offset];
+        }
+
 	}
 
 }
