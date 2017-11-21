@@ -6,6 +6,9 @@
 #include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <dirent.h>
 #include <signal.h>
 
@@ -275,17 +278,21 @@ int main() {
 	#endif
 
 
-    FILE *sysfb;
-    sysfb = fopen("/dev/fb0", "r");
+    //FILE *sysfb;
+    //sysfb = fopen("/dev/fb0", "r");
+	int sysfb;
+	sysfb = open("/dev/fb0", O_RDONLY);
     uint8_t *buffer = malloc(160*128*4);
 	while (keepRunning) {
-        rewind(sysfb);
-        uint8_t result = fread(buffer, 160*128*4, 1, sysfb);
+        //rewind(sysfb);
+        //uint8_t result = fread(buffer, 160*128*4, 1, sysfb);
+		pread(sysfb, buffer, 160*128*4, 0);
         drawFramebuffer(buffer);
         delay(16);
 	}
 	//digitalWrite(P_RES, 0);
-    fclose(sysfb);
+	//fclose(sysfb);
+	close(sysfb);
 	//delay(500);
 
 	displaySend(COMMAND, 0x04);//power save
