@@ -241,6 +241,27 @@ void drawFramebuffer(uint8_t *buffer) {
     }
 }
 
+
+void shrinkImage(uint8_t *in, uint8_t *out) {
+	int offset = 0;
+	int w = 160;
+	int h = 144;
+
+	for (int i = 0; i < w * h*4; i++) {
+		int line = floor(i / w);
+		if ( ((i % w) == 0) && ((line % 9) == 0) && (line != 0)) {
+			offset += w;
+		}
+		//uint8_t r,g,b;
+		//r = (((in[i+offset] >> 16) & 0xFF) + ((in[i+offset-160] >> 16) & 0xFF)) / 2;
+		//g = (((in[i+offset] >> 8) & 0xFF) + ((in[i+offset-160] >> 8) & 0xFF)) / 2;
+		//b = (((in[i+offset]) & 0xFF) + ((in[i+offset-160]) & 0xFF)) / 2;
+		//out[i] = r << 16 | g << 8 | b;
+        out[i] = (((in[i+offset]) & 0xFF) + ((in[i+offset-160]) & 0xFF)) / 2;
+	}
+
+}
+
 int main() {
 
 	signal(SIGINT, intHandler);
@@ -282,12 +303,14 @@ int main() {
     //sysfb = fopen("/dev/fb0", "r");
 	int sysfb;
 	sysfb = open("/dev/fb0", O_RDONLY);
-    uint8_t *buffer = malloc(160*128*4);
+    uint8_t *buffer = malloc(160*144*4);
+    uint8_t *toOled = malloc(160*128*4);
 	while (keepRunning) {
         //rewind(sysfb);
         //uint8_t result = fread(buffer, 160*128*4, 1, sysfb);
-		pread(sysfb, buffer, 160*128*4, 0);
-        drawFramebuffer(buffer);
+		pread(sysfb, buffer, 160*144*4, 0);
+        shrinkImage(buffer, toOled);
+        drawFramebuffer(toOld);
         delay(16);
 	}
 	//digitalWrite(P_RES, 0);
