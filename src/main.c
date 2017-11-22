@@ -308,18 +308,19 @@ int main() {
     //sysfb = fopen("/dev/fb0", "r");
 	int sysfb;
 	sysfb = open("/dev/fb0", O_RDONLY);
-    uint8_t *buffer = malloc(160*144*4);
+    //uint8_t *buffer = malloc(160*144*4);
     uint8_t *toOled = malloc(160*128*4);
 	while (keepRunning) {
         //rewind(sysfb);
         //uint8_t result = fread(buffer, 160*128*4, 1, sysfb);
-		pread(sysfb, buffer, 160*144*4, 0);
-        shrinkImage(buffer, toOled);
+		pread(sysfb, toOled, 160*128*4, 0);
+        //shrinkImage(buffer, toOled);
         drawFramebuffer(toOld);
         delay(16);
 	}
 	//digitalWrite(P_RES, 0);
 	//fclose(sysfb);
+    free(toOled);
 	close(sysfb);
 	//delay(500);
 
